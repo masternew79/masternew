@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 
 // CORS
 app.use((req, res, next) => {
-    res.header('Access-Controll-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', '*');
     res.header(
         'Access-Controll-Allow-Headers', 
         'Origin, X-Requested-With, Content-Type, Accept, Authorization'
