@@ -43,10 +43,34 @@ module.exports = {
     // GET
     index: async (req, res, next) => {
         try {
-            const products = await Product.find({}).select('_id name price salePrice categoryId image');
+            const key = req.query.key ? req.query.key : '';
+            const perPage = req.query.perPage ? +req.query.perPage : 0;
+            const page = req.query.page ? +req.query.page : 1;
+            let order = {'priority': -1};
+            const cate = req.query.cate ? req.query.cate : /[a-zA-Z0-9]*$/;
+            console.log(cate);
+
+            const totalProducts = await Product
+                                        .find({
+                                            'name': new RegExp(key, 'i'),
+                                            'categoryId': {$regex: cate}
+                                        });
+
+            const products = await Product
+                                    .find({
+                                        'name': new RegExp(key, 'i'),
+                                        'categoryId': {$regex: cate}
+                                    })
+                                    .select('_id name price salePrice categoryId image')
+                                    .limit(perPage)
+                                    .skip(perPage * (page - 1))
+                                    .sort(order)
+
             if (products.length > 0) {
                 res.status(200).json({ 
-                    count: products.length,
+                    count: totalProducts.length,
+                    currentPage: page,
+                    lastPage: Math.ceil(totalProducts.length / perPage),
                     data: products.map( product => {
                         return {
                             id: product._id,
