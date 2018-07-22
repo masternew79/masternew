@@ -24,7 +24,7 @@ const upload = multer({
 })
 const fields = [
     {name: 'image', maxCount: 1},
-    // {name: 'subImage', maxCount: 10}
+    {name: 'subImage', maxCount: 10}
 ];
 
 const productController = require('../controllers/products');
@@ -34,9 +34,9 @@ router.get('/', productController.index);
 
 router.post('/', checkAuth.admin, upload.fields(fields), productController.store);
 
-router.get('/:id', checkAuth.admin, productController.show);
+router.get('/:id', productController.show);
 
-router.patch('/:id', checkAuth.admin, productController.update);
+router.patch('/:id', upload.fields(fields), productController.update);
 
 router.delete('/:id', checkAuth.admin, productController.destroy);
 

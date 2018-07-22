@@ -63,6 +63,7 @@ module.exports = {
                 res.status(500).json({ message: 'Not entries found'});
             }
         } catch (error) {
+            console.log(error);
             res.status(500).json({error});
         }
     },
@@ -112,6 +113,7 @@ module.exports = {
                 res.status(500).json({error: "No valid entry found for provide ID"});
             }
         } catch (error) {
+            console.log(error);
             res.status(500).json({error});
         }
     },
@@ -119,15 +121,39 @@ module.exports = {
     update: async (req, res, next) => {
         try {
             const id = req.params.id;
-            const newProduct = req.body;
-            console.log(req.body);
+            const requestBody = req.body;
+
+            let requestFiles = {};
+            // Update image from req.files if exist
+            if (req.files['image'][0]) {
+                const imagePath = req.files['image'][0].path;
+                // Upload Image to firebase
+                const imageUrl = await uploadFirebase(imagePath);
+                requestFiles.image = imageUrl
+            }
+            // Update subImage from req.files if exist
+            if (req.files['subImage']) {
+                const subImagePath = req.files['subImage'].map(
+                    file => file.path
+                );
+                let subImageUrl = await Promise.all(
+                    subImagePath.map( async (path) => {
+                        return path = await uploadFirebase(path);
+                    })
+                )
+                requestFiles.subImage = subImageUrl
+            }
+            // Concat body + file
+            const newProduct = Object.assign(requestFiles, requestBody)
+
             const result = await Product.findByIdAndUpdate(id, newProduct);
             if (result) {
-                res.status(200).json({ message: 'Updated successfully'});
+                res.status(200).json({ message: "Updated successfully"});
             } else {
                 res.status(500).json({error: "No valid entry found for provide ID"});
             }
         } catch (error) {
+            console.log(error);
             res.status(500).json({error});
         }
     },
@@ -142,6 +168,7 @@ module.exports = {
                 res.status(500).json({error: "No valid entry found for provide ID"});
             }
         } catch (error) {
+            console.log(error);
             res.status(500).json({error});       
         }
     },
