@@ -171,7 +171,7 @@ module.exports = {
     show: async (req, res, next) => {
         try {
             const id = req.params.id;
-            const product = await Product.findById(id).select('_id name price categoryId');
+            const product = await Product.findById(id);
             if (product) {
                 res.status(201).json({ data: product });
             } else {
