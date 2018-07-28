@@ -174,7 +174,11 @@ module.exports = {
             const id = req.params.id;
             const product = await Product.findById(id);
             if (product) {
-                res.status(201).json({ data: product });
+                // Add id field to data
+                const data = Object.assign({}, product._doc, {id: product._id}) 
+                res.status(201).json({ 
+                    data: data
+                });
             } else {
                 res.status(500).json({error: "No valid entry found for provide ID"});
             }
