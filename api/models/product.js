@@ -34,8 +34,8 @@ const productSchema = mongoose.Schema({
         default: []
     },
     parameter: {
-        type: Array,
-        default: []
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
     },
     intro: {
         type: String,
