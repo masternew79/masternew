@@ -176,7 +176,7 @@ module.exports = {
             if (product) {
                 // Add id field to data
                 const data = Object.assign({}, product._doc, {id: product._id}) 
-                res.status(201).json({ 
+                res.status(200).json({ 
                     data: data
                 });
             } else {
