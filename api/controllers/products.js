@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const admin = require('firebase-admin');
 const fs = require('fs');
+const urlSlug = require('url-slug');
 
 const Product = require('../models/product');
 const serviceAccount = require('./../../mn-shop-firebase.json')
@@ -36,10 +37,8 @@ async function uploadFirebase(path) {
         const filenameOnBucket = responseUpload[0].name;
         // Get public url return []
         const publicUrl = await bucket.file(filenameOnBucket).getSignedUrl(optionsPublicURL);
-
+        // Delete file
         fs.unlinkSync(path)
-
-        console.log(publicUrl);
 
         return publicUrl[0];
     } catch (error) {
@@ -102,7 +101,7 @@ module.exports = {
 
             const products = await Product
                                     .find(conditions)
-                                    .select('_id name price salePrice categoryId image')
+                                    .select('_id name price salePrice categoryId image slug')
                                     .limit(limit)
                                     .skip(limit * (page - 1))
                                     .sort(order)
@@ -119,6 +118,7 @@ module.exports = {
                             price: product.price,
                             salePrice: product.salePrice,
                             image: product.image,
+                            slug: product.slug,
                             categoryId: product.categoryId,
                             url: config.publicPath + 'products/' + product._id
                         };
@@ -151,6 +151,7 @@ module.exports = {
 
             const newProduct = new Product({
                 name: req.body.name,
+                slug: urlSlug(req.body.slug),
                 price: req.body.price,
                 salPrice: req.body.salPrice,
                 salTime: req.body.salTime,
@@ -210,7 +211,6 @@ module.exports = {
             }
             // Concat body + file
             const newProduct = Object.assign(requestFiles, requestBody)
-        
             
             const result = await Product.findByIdAndUpdate(id, newProduct, optionsUpdate);
             if (result) {
@@ -225,42 +225,23 @@ module.exports = {
     },
     // updateAll: async (req, res, next) => {
     //     try {
-    //         const id = req.params.id;
-    //         const requestBody = req.body;
-
-    //         let requestFiles = {};
-    //         // Update image from req.files if exist
-    //         if (req.files['image'][0]) {
-    //             const imagePath = req.files['image'][0].path;
-    //             // Upload Image to firebase
-    //             const imageUrl = await uploadFirebase(imagePath);
-    //             requestFiles.image = imageUrl
-    //         }
-    //         // Update subImage from req.files if exist
-    //         if (req.files['subImage']) {
-    //             const subImagePath = req.files['subImage'].map(
-    //                 file => file.path
-    //             );
-    //             let subImageUrl = await Promise.all(
-    //                 subImagePath.map( async (path) => {
-    //                     return path = await uploadFirebase(path);
-    //                 })
-    //             )
-    //             requestFiles.subImage = subImageUrl
-    //         }
-    //         // Concat body + file
-    //         const newProduct = Object.assign(requestFiles, requestBody)
-
-    //         const result = await Product.findByIdAndUpdate(id, newProduct);
-    //         if (result) {
-    //             res.status(200).json({ message: "Updated successfully"});
-    //         } else {
-    //             res.status(500).json({error: "No valid entry found for provide ID"});
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //         res.status(500).json({error});
+    //     const products = await Product.find({});
+    //     console.log(products.length);
+    //     for (let i = 0; i < products.length; i++) {
+    //         console.log(i);
+    //         console.log( products[i]._id);
+    //         console.log( products[i].name);
+    //         console.log( urlSlug(products[i].name) );
+    //         const result = await Product.findByIdAndUpdate({_id: products[i]._id},
+    //             {$set: { slug: urlSlug(products[i].name)}});
+    //         //     console.log(result);
     //     }
+    //     res.status(200).json({ message: "Updated successfully"});
+    // } catch (error) {
+    //     console.log(error);
+    //     return res.status(500).json({error: "No valid entry found for provide ID"});
+        
+    // }
     // },
     // DELETE
     destroy:  async (req, res, next) => {
