@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 //routes handle request
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/orders', orderRoutes);
-app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 
 // catch route not define

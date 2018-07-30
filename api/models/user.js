@@ -6,6 +6,26 @@ const userSchema = mongoose.Schema({
         required: true,
         match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
     },
+    avatar: {
+        type: String,
+        default: ''
+    },
+    name: {
+        type: String,
+        default: 'Customer'
+    },
+    address: {
+        type: String,
+        default: ''
+    },
+    phone: {
+        type: String,
+        default: ''
+    },
+    favorite: {
+        type: Array,
+        default: []
+    },
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false}
 }, {

@@ -227,35 +227,34 @@ module.exports = {
             res.status(500).json({error});
         }
     },
-    updateAll: async (req, res, next) => {
-        try {
-        const products = await Product.find({});
-        console.log(products.length);
-        for (let i = 0; i < products.length; i++) {
-            const parameter = {
-                "WEIGHT": "163g",
-                "PRODUCT DIMENSIONS (INCHES)": "9.34 x 6.65 x 0.24 inches",
-                "INTERNAL MEMORY": "4GB(RAM) + 32 GB",
-                "OS": "Android™ 7.0",
-                "BATTERY TYPE AND SIZE": "Li-Ion 6000mAh",
-                "BLUETOOTH": "Bluetooth v4.2",
-                "MAIN DISPLAY SIZE": "158.0mm (6.2 full rectangle) / 154.5mm (6.1 rounded corners)"
-            }
-            console.log(i);
-            console.log( products[i]._id);
-            console.log( products[i].name);
-            console.log( urlSlug(products[i].name) );
-            const result = await Product.findByIdAndUpdate({_id: products[i]._id},
-                {$set: { parameter: parameter}});
-            //     console.log(result);
-        }
-        res.status(200).json({ message: "Updated successfully"});
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({error: "No valid entry found for provide ID"});
+    // updateAll: async (req, res, next) => {
+    //     try {
+    //     const products = await Product.find({});
+    //     console.log(products.length);
+    //     for (let i = 0; i < products.length; i++) {
+    //         const parameter = {
+    //             "WEIGHT": "163g",
+    //             "PRODUCT DIMENSIONS (INCHES)": "9.34 x 6.65 x 0.24 inches",
+    //             "INTERNAL MEMORY": "4GB(RAM) + 32 GB",
+    //             "OS": "Android™ 7.0",
+    //             "BATTERY TYPE AND SIZE": "Li-Ion 6000mAh",
+    //             "BLUETOOTH": "Bluetooth v4.2",
+    //             "MAIN DISPLAY SIZE": "158.0mm (6.2 full rectangle) / 154.5mm (6.1 rounded corners)"
+    //         }
+    //         console.log( products[i]._id);
+    //         console.log( products[i].name);
+    //         console.log( urlSlug(products[i].name) );
+    //         const result = await Product.findByIdAndUpdate({_id: products[i]._id},
+    //             {$set: { parameter: parameter}});
+    //         //     console.log(result);
+    //     }
+    //     res.status(200).json({ message: "Updated successfully"});
+    // } catch (error) {
+    //     console.log(error);
+    //     return res.status(500).json({error: "No valid entry found for provide ID"});
         
-    }
-    },
+    // }
+    // },
     // DELETE
     destroy:  async (req, res, next) => {
         try {

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const config = require('../../config');
+const tokenList = {};
 
 module.exports = {
     // GET
@@ -16,16 +17,22 @@ module.exports = {
     // POST
     signup: async (req, res, next) => {
         try {
+            const postData = req.body;
             // Check email exists
-            const user = await User.find({ email: req.body.email });
+            const user = await User.find({ email: postData.email });
+            // If email exist
             if (user.length > 0) {
                 return res.status(409).json({ message: "Email already exists"});
             }
+            // password, passwordConfirm not match
+            if (postData.password !== postData.passwordConfirm) {
+                res.status(500).json({message: "Password and password confirm not match"});    
+            }
             // Store new user
-            const hash = bcrypt.hashSync(req.body.password, config.saltRound);
+            const hash = bcrypt.hashSync(postData.password, config.saltRound);
             const newUser = new User({
                 _id: mongoose.Types.ObjectId(),
-                email: req.body.email,
+                email: postData.email,
                 password: hash
             });
             const userCreated = await newUser.save();
@@ -38,24 +45,30 @@ module.exports = {
             });
         } catch (error) {
             console.log(error);
-            res.status(500).json(error);
+            res.status(500).json({message: "Something wrong"});
         }
     },
     // GET
     show: async (req, res, next) => {
         try {
-            const id = req.params.id;
-            const user = await User.findById(id).select('_id email');
-
-            if(user) {
-                res.status(200).json({
-                    data: user
-                });
+            const userRequest = req.userData;
+            // User request is the same with payload.ID
+            if (userRequest.id == req.params.id) {
+                const user = await User.findById(userRequest.id).select('-password');
+    
+                if(user) {
+                    res.status(200).json({
+                        data: user
+                    });
+                } else {
+                    res.status(500).json({error: "No valid entry found for provide ID"});
+                }
             } else {
                 res.status(500).json({error: "No valid entry found for provide ID"});
             }
         } catch (error) {
-            res.status(500).json({error});
+            console.log(error);
+            res.status(500).json({message: "Some thing wrong"});
         }
     },
     // PUT, PATCH
@@ -75,19 +88,50 @@ module.exports = {
             if (!match) {
                 return res.status(401).json({ message: "Auth failed" });
             }
+            const payload = { 
+                email: user[0].email, 
+                id: user[0]._id 
+            };
             // Genarate token
-            const token = await jwt.sign(
-                { email: user[0].email, id: user[0]._id, isAdmin: user[0].isAdmin }, 
-                process.env.JWT_KEY, 
-                { expiresIn: "1h" }
-            );
-            res.status(200).json({
+            const token = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.tokenLife });
+            // Genarate refresh token
+            const refreshToken = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.refreshTokenLife });
+            // Response sent to client
+            const response = {
                 message: "Auth successful",
-                token: token
-            })
+                token: token,
+                refreshToken: refreshToken
+            };
+            // Add to list refresh token
+            tokenList[refreshToken] = response;
+
+            res.status(200).json(response);
         } catch (error) {
             console.log(error);
             res.status(500).json({error});
+        }
+    },
+
+    token: async(req, res, next) => {
+        // req.body = {refreshToken, email, id}
+        const postData = req.body;
+
+        if (postData.refreshToken && postData.refreshToken in tokenList) {
+            if (!postData.email || !postData.id) {
+                return res.status(404).json({message: 'Email, ID are required'})
+            }
+            const payload = {
+                email: postData.email,
+                id: postData.id
+            }
+            // Create new token
+            const token = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.tokenLife });
+            // Update to token list
+            tokenList[postData.refreshToken].token = token;
+
+            res.status(200).json({token})
+        } else {
+            res.status(404).json({message: 'Invalid request'})
         }
     },
     // DELETE
