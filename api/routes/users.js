@@ -6,11 +6,11 @@ const checkAuth = require('../middlewares/check-auth');
 
 router.get('/', userController.index);
 
-router.post('/signup', userController.signup);
+router.post('/register', userController.register);
 
 router.post('/login', userController.login);
 
-router.post('/token', userController.token);
+router.post('/token', checkAuth.user, userController.token);
 
 router.get('/:id', checkAuth.user, userController.show);
 

@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const config = require('../../config');
-const tokenList = {};
 
 module.exports = {
     // GET
@@ -15,7 +14,7 @@ module.exports = {
         })
     },
     // POST
-    signup: async (req, res, next) => {
+    register: async (req, res, next) => {
         try {
             const postData = req.body;
             // Check email exists
@@ -51,10 +50,9 @@ module.exports = {
     // GET
     show: async (req, res, next) => {
         try {
-            const userRequest = req.userData;
-            // User request is the same with payload.ID
-            if (userRequest.id == req.params.id) {
-                const user = await User.findById(userRequest.id).select('-password');
+            // req.userData from check-auth
+            if (req.userData.id == req.params.id) {
+                const user = await User.findById(req.userData.id).select('-password');
     
                 if(user) {
                     res.status(200).json({
@@ -88,22 +86,20 @@ module.exports = {
             if (!match) {
                 return res.status(401).json({ message: "Auth failed" });
             }
-            const payload = { 
+            const userData = { 
                 email: user[0].email, 
                 id: user[0]._id 
             };
             // Genarate token
-            const token = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.tokenLife });
+            const token = await jwt.sign(userData, process.env.JWT_KEY, { expiresIn: config.tokenLife });
             // Genarate refresh token
-            const refreshToken = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.refreshTokenLife });
+            const refreshToken = await jwt.sign(userData, process.env.JWT_KEY, { expiresIn: config.refreshTokenLife });
             // Response sent to client
             const response = {
                 message: "Auth successful",
                 token: token,
                 refreshToken: refreshToken
             };
-            // Add to list refresh token
-            tokenList[refreshToken] = response;
 
             res.status(200).json(response);
         } catch (error) {
@@ -112,25 +108,30 @@ module.exports = {
         }
     },
 
-    token: async(req, res, next) => {
-        // req.body = {refreshToken, email, id}
-        const postData = req.body;
-
-        if (postData.refreshToken && postData.refreshToken in tokenList) {
-            if (!postData.email || !postData.id) {
-                return res.status(404).json({message: 'Email, ID are required'})
+    token: async (req, res, next) => {
+        try {
+            const refreshToken = req.body.refreshToken || '';
+            if (refreshToken) {
+                // Data from token
+                const userData = await jwt.verify(refreshToken, process.env.JWT_KEY);
+                // Check in DB
+                const user = await User.findById(userData.id);
+                if (user) {
+                    // Create new token
+                    let data = {
+                        id: user._id,
+                        email: user.email
+                    }
+                    const token = await jwt.sign(data, process.env.JWT_KEY, { expiresIn: config.tokenLife });
+                    res.status(200).json({token})
+                } else {
+                    res.status(404).json({message: 'Auth fail 1'})
+                }
+            } else {
+                res.status(404).json({message: 'Auth fail 2'})
             }
-            const payload = {
-                email: postData.email,
-                id: postData.id
-            }
-            // Create new token
-            const token = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.tokenLife });
-            // Update to token list
-            tokenList[postData.refreshToken].token = token;
-
-            res.status(200).json({token})
-        } else {
+        } catch (error) {
+            console.log(error);
             res.status(404).json({message: 'Invalid request'})
         }
     },
