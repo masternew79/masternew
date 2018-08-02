@@ -12,6 +12,8 @@ router.post('/login', userController.login);
 
 router.post('/token', checkAuth.user, userController.token);
 
+router.patch('/:id', checkAuth.user, userController.update);
+
 router.get('/:id', checkAuth.user, userController.show);
 
 router.delete('/:id', checkAuth.admin, userController.destroy);

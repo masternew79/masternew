@@ -71,7 +71,19 @@ module.exports = {
     },
     // PUT, PATCH
     update: async (req, res, next) => {
-        
+        try {
+            const id = req.params.id;
+            
+            const result = await User.findByIdAndUpdate(id, req.body);
+            if (result) {
+                res.status(200).json({ message: "Updated successfully"});
+            } else {
+                res.status(500).json({error: "No valid entry found for provide ID"});
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({error});
+        }
     },
     
     login: async (req, res, next) => {
@@ -96,6 +108,7 @@ module.exports = {
             const refreshToken = await jwt.sign(userData, process.env.JWT_KEY, { expiresIn: config.refreshTokenLife });
             // Response sent to client
             const response = {
+                id: user[0]._id,
                 message: "Auth successful",
                 token: token,
                 refreshToken: refreshToken

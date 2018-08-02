@@ -1,5 +1,3 @@
-const mongoose = require('mongoose');
-const multer = require('multer');
 const admin = require('firebase-admin');
 const fs = require('fs');
 const urlSlug = require('url-slug');
@@ -18,15 +16,6 @@ const bucket = admin.storage().bucket();
 const optionsPublicURL = {
     action: 'read',
     expires: '03-17-2025',
-};
-
-var optionsUpdate = {
-    // Return the document after updates are applied
-    new: true,
-    // Create a document if one isn't found. Required
-    // for `setDefaultsOnInsert`
-    upsert: true,
-    setDefaultsOnInsert: true
 };
 
 async function uploadFirebase(path) {
@@ -216,7 +205,7 @@ module.exports = {
             // Concat body + file
             const newProduct = Object.assign(requestFiles, requestBody)
             
-            const result = await Product.findByIdAndUpdate(id, newProduct, optionsUpdate);
+            const result = await Product.findByIdAndUpdate(id, newProduct);
             if (result) {
                 res.status(200).json({ message: "Updated successfully"});
             } else {
