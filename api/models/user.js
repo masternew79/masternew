@@ -1,22 +1,14 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const userSchema = mongoose.Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
+        minlength: 5,
+        maxlength: 255,
         match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-    },
-    name: {
-        type: String,
-        default: 'Customer'
-    },
-    address: {
-        type: String,
-        default: ''
-    },
-    phone: {
-        type: String,
-        default: ''
     },
     favorite: {
         type: Array,
@@ -24,7 +16,9 @@ const userSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        minlength: 5,
+        maxlength: 1024
     },
     isAdmin: {
         type: Boolean,
@@ -32,6 +26,18 @@ const userSchema = mongoose.Schema({
     }
 }, {
     timestamp: true
-})
+});
 
-module.exports = mongoose.model('User', userSchema);
+// Validate input
+function validateUser(category) {
+    const schema = {
+        email: Joi.string().min(5).max(255).required().email(),
+        password: Joi.string().min(5).max(30).required(),
+        passwordConfirm: Joi.string().min(5).max(30),
+        favorite: Joi.array()
+    }
+    return Joi.validate(category, schema);
+}
+
+exports.User = mongoose.model('User', userSchema);
+exports.validate = validateUser;

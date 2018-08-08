@@ -1,28 +1,37 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
+const URLSlugs = require('mongoose-url-slugs');
 
 const productSchema = mongoose.Schema({
     name: {
         type: String,
+        minlength: 5,
+        maxlength: 200,
         required: true
-    },
-    slug: {
-        type: String,
-        default: "",
     },
     price: {
         type: Number,
-        required: true
+        required: true,
+        min: 0,
     },
     salePrice: {
         type: Number,
-        default: 0  
+        default: 0,
+        min: 0
     },
     saleTime: {
         type: Date,
         default: ''
     },
-    categoryId: {
-        type: String,
+    category: {
+        type: new mongoose.Schema({
+            name: {
+                type: String,
+                required: true,
+                minlength: 3,
+                maxlength: 50
+            }
+        }),
         required: true
     },
     image: {
@@ -30,6 +39,10 @@ const productSchema = mongoose.Schema({
         default: ''
     },
     subImage: {
+        type: Array,
+        default: []
+    },
+    tags: {
         type: Array,
         default: []
     },
@@ -43,10 +56,42 @@ const productSchema = mongoose.Schema({
     },
     priority: {
         type: Number,
+        default: 0,
+        min: 0
+    },
+    isPublished: {
+        type: Boolean,
+        default: true
+    },
+    view: {
+        type: Number,
         default: 0
     }
 }, {
     timestamps: true
 });
+// Add slug field
+productSchema.plugin(URLSlugs('name', { update: true, recreate: true }))
 
-module.exports = mongoose.model('Product', productSchema);
+const Product = mongoose.model('Product', productSchema);
+
+function validateProduct(product) {
+    const schema = {
+        name: Joi.string().min(5).max(200).required(),
+        price: Joi.number().min(0).required(),
+        categoryId: Joi.objectId().required(),
+        salPrice: Joi.number().min(0),
+        intro: Joi.string().min(5),
+        parameter: Joi.object(),
+        isPublished: Joi.boolean(),
+        priority: Joi.number().min(0),
+        subImage: Joi.array(),
+        tags: Joi.array(),
+        image: Joi.string()
+    }
+    return Joi.validate(product, schema);
+}
+
+exports.productSchema = productSchema;
+exports.Product = Product;
+exports.validate = validateProduct;

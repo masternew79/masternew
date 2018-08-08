@@ -1,10 +1,8 @@
 const admin = require('firebase-admin');
 const fs = require('fs');
-const urlSlug = require('url-slug');
-
-const Product = require('../models/product');
+const { Product, validate } = require('../models/product');
+const { Category } = require('../models/category');
 const serviceAccount = require('./../../mn-shop-firebase.json')
-const config = require('../../config');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -39,151 +37,120 @@ async function uploadFirebase(path) {
 module.exports = {
     // GET
     index: async (req, res, next) => {
-        try {
-            const limit = req.query.limit ? +req.query.limit : 20;
-            const page = req.query.page ? +req.query.page : 1;
+        const limit = req.query.limit ? +req.query.limit : 20;
+        const page = req.query.page ? +req.query.page : 1;
+        // Default order by priority desc
+        let order = {'priority': -1};
+        if (req.query.price)
+            req.query.price == 'desc' ? order = {'price': -1} : order = {'price': 1}
 
-            // Default order by priority desc
-            let order = {'priority': -1};
-            if (req.query.price) {
-                const orderByPrice = req.query.price;
-                if (orderByPrice == 'desc') {
-                    order = {'price': -1};
-                } else {
-                    order = {'price': 1};
-                }
-            }
-            // Conditions of find()
-            let conditions = {};
-            // Use to search
-            if (req.query.key) {
-                conditions.name = new RegExp(req.query.key, 'i');
-            }
-            // Filter by cate
-            if (req.query.cate) {
-                conditions.categoryId = req.query.cate;
-            }
-            // Filter by price
-            if (req.query.max || req.query.min) {
-                const max = req.query.max ? req.query.max : 0;
-                const min = req.query.min ? req.query.min : 0;
-
-                let priceFilter = {};
-                // Client select under
-                if (max && !min) {
-                    priceFilter.$lt = max
-                }
-                // Clien select over
-                if (!max && min) {
-                    priceFilter.$gt = min
-                }
-                // Client select from to
-                if (max && min) {
-                    priceFilter.$lte = max
-                    priceFilter.$gte = min
-                }
-                conditions.price = priceFilter
-            }
-
-            const totalProducts = await Product
-                                        .find(conditions);
-
-            const products = await Product
-                                    .find(conditions)
-                                    .select('_id name price salePrice categoryId image slug')
-                                    .limit(limit)
-                                    .skip(limit * (page - 1))
-                                    .sort(order)
-
-            if (products.length > 0) {
-                res.status(200).json({ 
-                    count: totalProducts.length,
-                    currentPage: page,
-                    lastPage: Math.ceil(totalProducts.length / limit),
-                    data: products.map( product => {
-                        return {
-                            id: product._id,
-                            name: product.name,
-                            price: product.price,
-                            salePrice: product.salePrice,
-                            image: product.image,
-                            slug: product.slug,
-                            categoryId: product.categoryId,
-                            url: config.publicPath + 'products/' + product._id
-                        };
-                    })
-                })
-            } else {
-                res.status(500).json({ message: 'Not entries found'});
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({error});
+        // Conditions: name, categoryId
+        let conditions = {
+            isPublished: true
+        };
+        // Use to search
+        if (req.query.key) {
+            conditions.name = new RegExp(req.query.key, 'i');
         }
+        // Filter by cate
+        if (req.query.cate) {
+            conditions.categoryId = req.query.cate;
+        }
+        // Filter by price
+        if (req.query.max || req.query.min) {
+            const max = req.query.max ? req.query.max : 0;
+            const min = req.query.min ? req.query.min : 0;
+
+            let priceFilter = {};
+            // Client select under
+            if (max && !min) {
+                priceFilter.$lt = max
+            }
+            // Clien select over
+            if (!max && min) {
+                priceFilter.$gt = min
+            }
+            // Client select from to
+            if (max && min) {
+                priceFilter.$lte = max
+                priceFilter.$gte = min
+            }
+            conditions.price = priceFilter
+        }
+        
+        const count = await Product.count(conditions);
+        if (!count) return res.status(404).send('Not entries found')
+
+        const products = await Product
+                                .find(conditions)
+                                .select('-subImage -saleTime -parameter -intro -isPublished')
+                                .limit(limit)
+                                .skip(limit * (page - 1))
+                                .sort(order)
+
+        res.status(200).json({ 
+            count: count,
+            currentPage: page,
+            lastPage: Math.ceil(count / limit),
+            data: products
+        })
     },
     // POST
-    store: async (req, res, next) => {
-        try {
-            // Get path local Image, SubImage
-            const imagePath = req.files['image'][0].path;
-            const subImagePath = req.files['subImage'].map(
-                file => file.path
-            );
-            // Upload Image to firebase
-            const imageUrl = await uploadFirebase(imagePath);
-            // Upload subImage to firebase
-            let subImageUrl = await Promise.all(
-                subImagePath.map( async (path) => {
-                    return path = await uploadFirebase(path);
-                })
-            )
+    store: async (req, res) => {
+        // Validate req.body
+        const { error } = validate(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
 
-            const newProduct = new Product({
-                name: req.body.name,
-                slug: urlSlug(req.body.slug),
-                price: req.body.price,
-                salPrice: req.body.salPrice,
-                salTime: req.body.salTime,
-                categoryId: req.body.categoryId,
-                image: imageUrl,
-                subImage: subImageUrl,
-                parameter: req.body.parameter,
-                intro: req.body.intro
-            });
-            const product = await newProduct.save();
-            res.status(201).json({ message: "Storage successfully" });
-        } catch(error) {
-            console.log(error);
-            res.status(500).json(error);
-        }
+        const category = await Category.findById(req.body.categoryId);
+        if (!category) return res.status(400).send("Invalid category");
+        // Remove categoryId from req.body
+        delete req.body.categoryId;
+
+        // Get path local Image, SubImage
+        const imagePath = req.files['image'][0].path;
+        if (!imagePath) return res.status(400).send("Image is required");
+        // Upload Image to firebase
+        const imageUrl = await uploadFirebase(imagePath);
+
+        // Get path local SubImage
+        const subImagePath = req.files['subImage'].map( file => file.path );
+        if (!subImagePath) return res.status(400).send("subImage are required");
+        // Upload subImage to firebase
+        let subImageUrl = await Promise.all(subImagePath.map(
+            async (path) => await uploadFirebase(path)
+        ));
+
+        
+        let product = new Product(req.body);
+        product.category = {
+            _id: category._id,
+            name: category.name
+        };
+        product.image = imageUrl;
+        product.subImage = subImageUrl;
+        await product.save();
+        
+        res.status(201).send(product);
     },
     // GET
-    show: async (req, res, next) => {
-        try {
-            const id = req.params.id;
-            const product = await Product.findById(id);
-            if (product) {
-                // Add id field to data
-                const data = Object.assign({}, product._doc, {id: product._id}) 
-                res.status(200).json({ 
-                    data: data
-                });
-            } else {
-                res.status(500).json({error: "No valid entry found for provide ID"});
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({error});
-        }
+    show: async (req, res) => {
+        const product = await Product.findById(req.params.id);
+        if(!product) return res.status(400).send("Invalid product ID");
+        // View +1
+        product.view++;
+        await product.save();
+
+        res.status(200).json({ data: product });
     },
     // PATCH
-    update: async (req, res, next) => {
-        try {
-            const id = req.params.id;
-            const requestBody = req.body;
+    update: async (req, res) => {
+        // Validate req.body
+        const { error } = validate(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
 
-            let requestFiles = {};
-            // Update image from req.files if exist
+        let requestFiles = {};
+        // Check update images
+        if (req.files) {
             if (req.files['image']) {
                 const imagePath = req.files['image'][0].path;
                 // Upload Image to firebase
@@ -192,30 +159,42 @@ module.exports = {
             }
             // Update subImage from req.files if exist
             if (req.files['subImage']) {
-                const subImagePath = req.files['subImage'].map(
-                    file => file.path
-                );
+                const subImagePath = req.files['subImage'].map( file => file.path );
                 let subImageUrl = await Promise.all(
-                    subImagePath.map( async (path) => {
-                        return path = await uploadFirebase(path);
-                    })
-                )
+                    subImagePath.map( async (path) => await uploadFirebase(path))
+                );
                 requestFiles.subImage = subImageUrl
             }
-            // Concat body + file
-            const newProduct = Object.assign(requestFiles, requestBody)
-            
-            const result = await Product.findByIdAndUpdate(id, newProduct);
-            if (result) {
-                res.status(200).json({ message: "Updated successfully"});
-            } else {
-                res.status(500).json({error: "No valid entry found for provide ID"});
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({error});
         }
+
+        // Concat body + file
+        let product = Object.assign(requestFiles, req.body)
+
+        if (product.categoryId) {
+            const category = await Category.findById(product.categoryId);
+            if (!category) return res.status(400).send("Invalid category");
+            // Remove categoryId from product:object use to update
+            delete product.categoryId;
+            product.category = {
+                _id: category._id,
+                name: category.name,
+            }
+        }
+        console.log(product);
+            
+        product = await Product.findByIdAndUpdate(req.params.id, product, { new: true });
+        if (!product) return res.status(500).send("No valid entry found for provide ID");
+
+        res.status(200).json({ data: product});
     },
+    // DELETE
+    destroy:  async (req, res) => {
+        const product = await Product.findByIdAndRemove({_id: id});
+        if (!product) return res.status(500).send("No valid entry found for provide ID");
+        
+        res.status(200).json({ data: product});
+    },
+
     // updateAll: async (req, res, next) => {
     //     try {
     //     const products = await Product.find({});
@@ -244,19 +223,5 @@ module.exports = {
         
     // }
     // },
-    // DELETE
-    destroy:  async (req, res, next) => {
-        try {
-            const id = req.params.id;
-            const result = await Product.findByIdAndRemove({_id: id});
-            if (result) {
-                res.status(200).json({ message: 'Deleted successfully' });
-            } else {
-                res.status(500).json({error: "No valid entry found for provide ID"});
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({error});       
-        }
-    },
+    
 }

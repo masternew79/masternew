@@ -1,42 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './uploads/')
-    },
-    filename: (req, file, cb) => {
-        cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname)
-    }
-});
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
-        cb(null, true);
-    } else {
-        cb(null, false);
-    }
-}
 
-const upload = multer({
-    storage,
-    fileFilter
-})
+const productController = require('../controllers/products');
+const checkAuth = require('../../middlewares/check-auth');
+const upload = require('../../helpers/upload')
+
 const fields = [
     {name: 'image', maxCount: 1},
     {name: 'subImage', maxCount: 10}
 ];
 
-const productController = require('../controllers/products');
-const checkAuth = require('../middlewares/check-auth');
-
 router.get('/', productController.index);
 
-router.post('/', checkAuth.admin, upload.fields(fields), productController.store);
+router.post('/',  checkAuth.admin, upload.fields(fields), productController.store);
 
 router.get('/:id', productController.show);
 
-router.patch('/:id', upload.fields(fields), productController.update);
+router.put('/:id',  checkAuth.admin, upload.fields(fields), productController.update);
 
 router.delete('/:id', checkAuth.admin, productController.destroy);
 

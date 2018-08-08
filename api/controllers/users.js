@@ -1,8 +1,9 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const Joi = require('joi')
 
-const User = require('../models/user');
+const {User, validate} = require('../models/user');
 const config = require('../../config');
 
 module.exports = {
@@ -14,151 +15,95 @@ module.exports = {
         })
     },
     // POST
-    register: async (req, res, next) => {
-        try {
-            const postData = req.body;
-            // Check email exists
-            const user = await User.find({ email: postData.email });
-            // If email exist
-            if (user.length > 0) {
-                return res.status(409).json({ message: "Email already exists"});
-            }
-            // password, passwordConfirm not match
-            if (postData.password !== postData.passwordConfirm) {
-                res.status(500).json({message: "Password and password confirm not match"});    
-            }
-            // Store new user
-            const hash = bcrypt.hashSync(postData.password, config.saltRound);
-            const newUser = new User({
-                _id: mongoose.Types.ObjectId(),
-                email: postData.email,
-                password: hash
-            });
-            const userCreated = await newUser.save();
+    register: async (req, res) => {
+        const { error } = validate(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
 
-            res.status(201).json({
-                message: "User created",
-                data: {
-                    userId: userCreated._id
-                }
-            });
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({message: "Something wrong"});
-        }
+        let user = await User.findOne({ email: req.body.email });
+        if (user) return res.status(400).send('User already registered.');
+
+        // password, passwordConfirm not match
+        if (req.body.password !== req.body.passwordConfirm)
+            return res.status(400).send("Password and password confirm not match");    
+
+        // Hash password
+        const hash = bcrypt.hashSync(req.body.password, config.saltRound);
+
+        // Save new user
+        user = new User({
+            _id: mongoose.Types.ObjectId(),
+            email: req.body.email,
+            password: hash
+        });
+        await user.save();
+
+        res.status(201).send("Register successfully");
+    },
+    login: async (req, res) => {
+        const { error } = validate(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
+        let user = await User.findOne({ email: req.body.email });
+        if (!user) return res.status(401).send('Invalid email or password.');
+
+        // Check password
+        const matchPassword = await bcrypt.compare(req.body.password, user.password)
+        if (!matchPassword) return res.status(401).send('Invalid email or password.');
+
+        // Generate token, refreshToken
+        const payload = { email: user.email, id: user._id };
+        const token = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.tokenLife });
+        const refreshToken = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.refreshTokenLife });
+
+        // Response sent to client
+        const response = {
+            id: user._id,
+            message: "Auth successful",
+            token: token,
+            refreshToken: refreshToken
+        };
+
+        res.status(200).json(response);
     },
     // GET
-    show: async (req, res, next) => {
-        try {
-            // req.userData from check-auth
-            if (req.userData.id == req.params.id) {
-                const user = await User.findById(req.userData.id).select('-password');
-    
-                if(user) {
-                    res.status(200).json({
-                        data: user
-                    });
-                } else {
-                    res.status(500).json({error: "No valid entry found for provide ID"});
-                }
-            } else {
-                res.status(500).json({error: "No valid entry found for provide ID"});
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({message: "Some thing wrong"});
-        }
+    show: async (req, res) => {
+        const user = await User.findById(req.userData.id).select('-password -isAdmin -__v');
+        res.send(user);
     },
     // PUT, PATCH
-    update: async (req, res, next) => {
-        try {
-            const id = req.params.id;
-            
-            const result = await User.findByIdAndUpdate(id, req.body);
-            if (result) {
-                res.status(200).json({ message: "Updated successfully"});
-            } else {
-                res.status(500).json({error: "No valid entry found for provide ID"});
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({error});
-        }
-    },
-    
-    login: async (req, res, next) => {
-        try {
-            const user = await User.find({email: req.body.email});
-            // Attemp email
-            if (user.length < 1) {
-                return res.status(401).json({ message: "Auth failed" });
-            }
-            // Check password
-            const match = bcrypt.compare(req.body.password, user[0].password)
-            if (!match) {
-                return res.status(401).json({ message: "Auth failed" });
-            }
-            const userData = { 
-                email: user[0].email, 
-                id: user[0]._id 
-            };
-            // Genarate token
-            const token = await jwt.sign(userData, process.env.JWT_KEY, { expiresIn: config.tokenLife });
-            // Genarate refresh token
-            const refreshToken = await jwt.sign(userData, process.env.JWT_KEY, { expiresIn: config.refreshTokenLife });
-            // Response sent to client
-            const response = {
-                id: user[0]._id,
-                message: "Auth successful",
-                token: token,
-                refreshToken: refreshToken
-            };
+    update: async (req, res) => {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).send('User with the given ID was not found.');
 
-            res.status(200).json(response);
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({error});
-        }
-    },
+        if (req.body.password) {
+            if (req.body.password !== req.body.passwordConfirm)
+            return res.status(400).send("Password and password confirm not match");    
 
-    token: async (req, res, next) => {
-        try {
-            const refreshToken = req.body.refreshToken || '';
-            if (refreshToken) {
-                // Data from token
-                const userData = await jwt.verify(refreshToken, process.env.JWT_KEY);
-                // Check in DB
-                const user = await User.findById(userData.id);
-                if (user) {
-                    // Create new token
-                    let data = {
-                        id: user._id,
-                        email: user.email
-                    }
-                    const token = await jwt.sign(data, process.env.JWT_KEY, { expiresIn: config.tokenLife });
-                    res.status(200).json({token})
-                } else {
-                    res.status(404).json({message: 'Auth fail 1'})
-                }
-            } else {
-                res.status(404).json({message: 'Auth fail 2'})
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(404).json({message: 'Invalid request'})
+            // Hash password
+            const hash = bcrypt.hashSync(req.body.password, config.saltRound);
+            user.password = hash;
         }
+        if (req.body.favorite) {
+            user.favorite = req.body.favorite;
+        }
+        await user.save();
+
+        res.send("Updated successfully");
     },
-    // DELETE
-    destroy: async (req, res, next) => {
-        try {
-            const result = await User.findByIdAndRemove({_id: req.params.id});
-            if (result) {
-                res.status(200).json({ message: "User removed.", result: result});
-            } else {
-                res.status(500).json({message: "User not found"});
-            }
-        } catch (error) {
-            res.status(500).json({error});
-        }
+    // POST /token
+    token: async (req, res) => {
+        const refreshToken = req.body.refreshToken || '';
+        if (!refreshToken) return res.status(401).send('Auth failed');
+        
+        // Data from token
+        const userData = await jwt.verify(refreshToken, process.env.JWT_KEY);
+
+        // Check in user exist
+        const user = await User.findById(userData.id);
+        if (!user) return res.status(401).send('Auth failed');
+               
+        // Create new token
+        const token = await jwt.sign({ id: user._id, email: user.email }, process.env.JWT_KEY, { expiresIn: config.tokenLife });
+        res.status(200).json({token})
     },
 }
