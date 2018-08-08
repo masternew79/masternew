@@ -1,4 +1,4 @@
-const { District } = require('../models/District');
+const { District } = require('../models/district');
 
 module.exports = {
     // GET /
