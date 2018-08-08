@@ -83,7 +83,7 @@ module.exports = {
 
         const products = await Product
                                 .find(conditions)
-                                .select('-subImage -saleTime -parameter -intro -isPublished')
+                                .select('-subImage -saleTime -parameter -intro -isPublished -tag -priority -__v -createdAt -updatedAt')
                                 .limit(limit)
                                 .skip(limit * (page - 1))
                                 .sort(order)
@@ -134,7 +134,7 @@ module.exports = {
     },
     // GET
     show: async (req, res) => {
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findById(req.params.id).select('-__v');
         if(!product) return res.status(400).send("Invalid product ID");
         // View +1
         product.view++;
