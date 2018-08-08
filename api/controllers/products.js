@@ -77,7 +77,6 @@ module.exports = {
             }
             conditions.price = priceFilter
         }
-        console.log(conditions)
         const count = await Product.count(conditions);
         if (!count) return res.status(404).send('Not entries found')
 
