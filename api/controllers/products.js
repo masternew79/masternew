@@ -54,7 +54,7 @@ module.exports = {
         }
         // Filter by cate
         if (req.query.cate) {
-            conditions.category._id = req.query.cate;
+            conditions['category._id'] = req.query.cate;
         }
         // Filter by price
         if (req.query.max || req.query.min) {
@@ -77,7 +77,7 @@ module.exports = {
             }
             conditions.price = priceFilter
         }
-        
+        console.log(conditions)
         const count = await Product.count(conditions);
         if (!count) return res.status(404).send('Not entries found')
 
