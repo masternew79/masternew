@@ -54,7 +54,7 @@ module.exports = {
         }
         // Filter by cate
         if (req.query.cate) {
-            conditions.categoryId = req.query.cate;
+            conditions.category._id = req.query.cate;
         }
         // Filter by price
         if (req.query.max || req.query.min) {
