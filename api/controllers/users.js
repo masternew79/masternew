@@ -60,7 +60,8 @@ module.exports = {
             id: user._id,
             message: "Auth successful",
             token: token,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
+            favorite: user.favorite
         };
 
         res.status(200).json(response);

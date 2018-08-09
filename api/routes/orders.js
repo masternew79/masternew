@@ -6,7 +6,7 @@ const checkAuth = require('../../middlewares/check-auth');
 
 router.get('/', checkAuth.admin, orderController.index);
 
-router.post('/', checkAuth.user, orderController.store);
+router.post('/', orderController.store);
 
 router.get('/:id', orderController.index);
 
