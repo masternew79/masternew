@@ -18,17 +18,12 @@ module.exports = {
         try {
             const token = req.headers.authorization.split(' ')[1];
             if (!token) {
-                return res.status(403).send({
-                    "message": 'No token provided.'
-                });
+                return res.status(403).send('No token provided.');
             }
             const decoded = jwt.verify(token, process.env.JWT_KEY);
             req.userData = decoded;
-            if (decoded.isAdmin) {
-                next()
-            } else {
-                res.status(401).json({ message: "Can not access"});
-            }
+            if (!decoded.isAdmin) return res.status(401).json({ message: "Can not access"});
+            next()
         } catch (error) {
             res.status(401).json({ message: "Auth failed"});
         }

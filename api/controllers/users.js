@@ -51,13 +51,13 @@ module.exports = {
         if (!matchPassword) return res.status(401).send('Invalid email or password.');
 
         // Generate token, refreshToken
-        const payload = { email: user.email, id: user._id };
+        const payload = { email: user.email, _id: user._id, isAdmin: user.isAdmin };
         const token = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.tokenLife });
         const refreshToken = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.refreshTokenLife });
 
         // Response sent to client
         const response = {
-            id: user._id,
+            _id: user._id,
             message: "Auth successful",
             token: token,
             refreshToken: refreshToken,
@@ -75,6 +75,11 @@ module.exports = {
     update: async (req, res) => {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).send('User with the given ID was not found.');
+
+        console.log(user._id);
+        console.log(req.userData);
+        if (user._id !=
+             req.userData._id) return res.status(403).send('Not accept.');
 
         if (req.body.password) {
             if (req.body.password !== req.body.passwordConfirm)
