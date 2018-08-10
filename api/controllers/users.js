@@ -76,10 +76,7 @@ module.exports = {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).send('User with the given ID was not found.');
 
-        console.log(user._id);
-        console.log(req.userData);
-        if (user._id !=
-             req.userData._id) return res.status(403).send('Not accept.');
+        if (user._id != req.userData._id) return res.status(403).send('Not accept.');
 
         if (req.body.password) {
             if (req.body.password !== req.body.passwordConfirm)
@@ -99,17 +96,18 @@ module.exports = {
     // POST /token
     token: async (req, res) => {
         const refreshToken = req.body.refreshToken || '';
-        if (!refreshToken) return res.status(401).send('Auth failed');
+        if (!refreshToken) return res.status(400).send('Refresh token is required');
         
         // Data from token
         const userData = await jwt.verify(refreshToken, process.env.JWT_KEY);
 
         // Check in user exist
-        const user = await User.findById(userData.id);
+        const user = await User.findById(userData._id);
         if (!user) return res.status(401).send('Auth failed');
                
         // Create new token
         const token = await jwt.sign({ id: user._id, email: user.email }, process.env.JWT_KEY, { expiresIn: config.tokenLife });
-        res.status(200).json({token})
+
+        res.send({token});
     },
 }
