@@ -106,7 +106,7 @@ module.exports = {
         if (!user) return res.status(401).send('Auth failed');
                
         // Create new token
-        const token = await jwt.sign({ id: user._id, email: user.email }, process.env.JWT_KEY, { expiresIn: config.tokenLife });
+        const token = await jwt.sign({ _id: user._id, email: user.email, isAdmin: user.isAdmin }, process.env.JWT_KEY, { expiresIn: config.tokenLife });
 
         res.send({token});
     },
