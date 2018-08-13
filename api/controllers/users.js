@@ -76,7 +76,7 @@ module.exports = {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).send('User with the given ID was not found.');
 
-        if (user._id != req.userData._id) return res.status(403).send('Not accept.');
+        if (user._id != req.userData._id) return res.status(403).send('Access denied.');
 
         if (req.body.password) {
             if (req.body.password !== req.body.passwordConfirm)
@@ -94,20 +94,30 @@ module.exports = {
         res.send("Updated successfully");
     },
     // POST /token
-    token: async (req, res) => {
+    relogin: async (req, res) => {
         const refreshToken = req.body.refreshToken || '';
         if (!refreshToken) return res.status(400).send('Refresh token is required');
         
         // Data from token
         const userData = await jwt.verify(refreshToken, process.env.JWT_KEY);
 
-        // Check in user exist
+        // Check user exist
         const user = await User.findById(userData._id);
         if (!user) return res.status(401).send('Auth failed');
+        if (user._id != req.userData._id) return res.status(403).send('Access denied.');
                
         // Create new token
-        const token = await jwt.sign({ _id: user._id, email: user.email, isAdmin: user.isAdmin }, process.env.JWT_KEY, { expiresIn: config.tokenLife });
+        const payload = { _id: user._id, email: user.email, isAdmin: user.isAdmin };
+        const token = await jwt.sign(payload, process.env.JWT_KEY, { expiresIn: config.tokenLife });
 
-        res.send({token});
+        // Response sent to client
+        const response = {
+            _id: user._id,
+            message: "Auth successful",
+            token: token,
+            refreshToken: refreshToken,
+            favorite: user.favorite
+        };
+        res.send(response);
     },
 }

@@ -10,7 +10,7 @@ router.post('/login', userController.login);
 
 router.get('/profile', checkAuth.user, userController.show);
 
-router.post('/token', checkAuth.user, userController.token);
+router.post('/relogin', checkAuth.user, userController.relogin);
 
 router.put('/:id', checkAuth.user, userController.update);
 
