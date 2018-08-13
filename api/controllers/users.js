@@ -61,7 +61,7 @@ module.exports = {
             message: "Auth successful",
             token: token,
             refreshToken: refreshToken,
-            favorite: user.favorite
+            favorites: user.favorites
         };
 
         res.status(200).json(response);
@@ -86,8 +86,8 @@ module.exports = {
             const hash = bcrypt.hashSync(req.body.password, config.saltRound);
             user.password = hash;
         }
-        if (req.body.favorite) {
-            user.favorite = req.body.favorite;
+        if (req.body.favorites) {
+            user.favorites = req.body.favorites;
         }
         await user.save();
 
@@ -116,7 +116,7 @@ module.exports = {
             message: "Auth successful",
             token: token,
             refreshToken: refreshToken,
-            favorite: user.favorite
+            favorites: user.favorites
         };
         res.send(response);
     },

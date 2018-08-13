@@ -10,7 +10,7 @@ const userSchema = mongoose.Schema({
         maxlength: 255,
         match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
     },
-    favorite: {
+    favorites: {
         type: Array,
         default: []
     },
