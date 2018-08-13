@@ -58,6 +58,7 @@ module.exports = {
         // Response sent to client
         const response = {
             _id: user._id,
+            email: user.email,
             message: "Auth successful",
             token: token,
             refreshToken: refreshToken,
@@ -113,6 +114,7 @@ module.exports = {
         // Response sent to client
         const response = {
             _id: user._id,
+            email: user.email,
             message: "Auth successful",
             token: token,
             refreshToken: refreshToken,
