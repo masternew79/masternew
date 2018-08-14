@@ -93,7 +93,7 @@ module.exports = {
         if (!user) return res.status(404).send('User with the given ID was not found.');
         if (user._id != req.userData._id) return res.status(403).send('Access denied.');
 
-        const matchPassword = await bcrypt.compare(req.body.oldPassword, user.password)
+        const matchPassword = await bcrypt.compare(req.body.currentPassword, user.password)
         if (!matchPassword) return res.status(401).send('Current password was wrong');
 
         if (req.body.password !== req.body.passwordConfirm)

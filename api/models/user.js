@@ -41,7 +41,7 @@ function validateUser(category) {
 
 function validateChangePassword(category) {
     const schema = {
-        oldPassword: Joi.string().min(5).max(30).required(),
+        currentPassword: Joi.string().min(5).max(30).required(),
         password: Joi.string().min(5).max(30).required(),
         passwordConfirm: Joi.string().min(5).max(30).required(),
     }
