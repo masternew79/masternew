@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi')
 
-const {User, validate} = require('../models/user');
+const {User, validate, validateChangePassword} = require('../models/user');
 const config = require('../../config');
 
 module.exports = {
@@ -76,20 +76,32 @@ module.exports = {
     update: async (req, res) => {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).send('User with the given ID was not found.');
-
         if (user._id != req.userData._id) return res.status(403).send('Access denied.');
 
-        if (req.body.password) {
-            if (req.body.password !== req.body.passwordConfirm)
+        if (!req.body.favorites) return res.status(400).send('Favorites field is required');
+
+        user.favorites = req.body.favorites;
+        await user.save();
+
+        res.send("Updated successfully");
+    },
+    changePassword: async (req, res) => {
+        const { error } = validateChangePassword(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).send('User with the given ID was not found.');
+        if (user._id != req.userData._id) return res.status(403).send('Access denied.');
+
+        const matchPassword = await bcrypt.compare(req.body.oldPassword, user.password)
+        if (!matchPassword) return res.status(401).send('Current password was wrong');
+
+        if (req.body.password !== req.body.passwordConfirm)
             return res.status(400).send("Password and password confirm not match");    
 
-            // Hash password
-            const hash = bcrypt.hashSync(req.body.password, config.saltRound);
-            user.password = hash;
-        }
-        if (req.body.favorites) {
-            user.favorites = req.body.favorites;
-        }
+         // Hash password
+        const hash = bcrypt.hashSync(req.body.password, config.saltRound);
+        user.password = hash;
         await user.save();
 
         res.send("Updated successfully");

@@ -39,5 +39,15 @@ function validateUser(category) {
     return Joi.validate(category, schema);
 }
 
+function validateChangePassword(category) {
+    const schema = {
+        oldPassword: Joi.string().min(5).max(30).required(),
+        password: Joi.string().min(5).max(30).required(),
+        passwordConfirm: Joi.string().min(5).max(30).required(),
+    }
+    return Joi.validate(category, schema);
+}
+
 exports.User = mongoose.model('User', userSchema);
 exports.validate = validateUser;
+exports.validateChangePassword = validateChangePassword;

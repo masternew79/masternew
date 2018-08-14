@@ -12,6 +12,8 @@ router.get('/profile', checkAuth.user, userController.show);
 
 router.post('/relogin', checkAuth.user, userController.relogin);
 
+router.post('/:id/changepassword', checkAuth.user, userController.changePassword);
+
 router.put('/:id', checkAuth.user, userController.update);
 
 module.exports = router;
