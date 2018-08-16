@@ -9,6 +9,9 @@ const errorMiddleware = require('../middlewares/error');
 
 module.exports = function(app) {
     //routes handle request
+    app.use('/', (req, res) => {
+        res.send('Index')
+    });
     app.use('/mn-shop/api/v1/categories', categoryRoutes);
     app.use('/mn-shop/api/v1/products', productRoutes);
     app.use('/mn-shop/api/v1/orders', orderRoutes);
