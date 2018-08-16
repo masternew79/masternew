@@ -9,13 +9,13 @@ const errorMiddleware = require('../middlewares/error');
 
 module.exports = function(app) {
     //routes handle request
-    app.use('/api/v1/categories', categoryRoutes);
-    app.use('/api/v1/products', productRoutes);
-    app.use('/api/v1/orders', orderRoutes);
-    app.use('/api/v1/users', userRoutes);
-    app.use('/api/v1/provinces', provinceRoutes);
-    app.use('/api/v1/districts', districtRoutes);
-    app.use('/api/v1/wards', wardRoutes);
+    app.use('/mn-shop/api/v1/categories', categoryRoutes);
+    app.use('/mn-shop/api/v1/products', productRoutes);
+    app.use('/mn-shop/api/v1/orders', orderRoutes);
+    app.use('/mn-shop/api/v1/users', userRoutes);
+    app.use('/mn-shop/api/v1/provinces', provinceRoutes);
+    app.use('/mn-shop/api/v1/districts', districtRoutes);
+    app.use('/mn-shop/api/v1/wards', wardRoutes);
 
     // catch route not define
     app.use((req, res, next) => {
