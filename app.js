@@ -7,6 +7,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 // CONFIG
 app.use('/uploads', express.static('uploads'));
+app.use(express.static('public'));
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

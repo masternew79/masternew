@@ -1,3 +1,83 @@
 {"message":"Connected to DB....","level":"info"}
 {"message":"Connected to DB....","level":"info"}
 {"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Cast to ObjectId failed for value \"djfso\" at path \"_id\" for model \"Product\"","name":"CastError","stringValue":"\"djfso\"","kind":"ObjectId","value":"djfso","path":"_id","level":"error"}
+{"message":"Cast to ObjectId failed for value \"5b6937be14b3800518edb5d\" at path \"_id\" for model \"Product\"","name":"CastError","stringValue":"\"5b6937be14b3800518edb5d\"","kind":"ObjectId","value":"5b6937be14b3800518edb5d","path":"_id","level":"error"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Parameter \"filter\" to findOne() must be an object, got 5b6937be14b3800518edb5dd","name":"ObjectParameterError","level":"error"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Cast to ObjectId failed for value \"5b6937be14b3800518edb5d\" at path \"_id\" for model \"Product\"","name":"CastError","stringValue":"\"5b6937be14b3800518edb5d\"","kind":"ObjectId","value":"5b6937be14b3800518edb5d","path":"_id","level":"error"}
+{"message":"Cast to ObjectId failed for value \"5b6937be14b3800518edb5d\" at path \"_id\" for model \"Product\"","name":"CastError","stringValue":"\"5b6937be14b3800518edb5d\"","kind":"ObjectId","value":"5b6937be14b3800518edb5d","path":"_id","level":"error"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\mn-shop\\startup \\views\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\mn-shop\\startup \\views\\index.html'"}
+{"message":"Connected to DB....","level":"info"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\mn-shop\\startup \\views\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\mn-shop\\startup \\views\\index.html'"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\mn-shop\\startup \\views\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\mn-shop\\startup \\views\\index.html'"}
+{"message":"Connected to DB....","level":"info"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\mn-shop\\startup \\views\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\mn-shop\\startup \\views\\index.html'"}
+{"message":"Connected to DB....","level":"info"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\mn-shop\\startup\\views\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\mn-shop\\startup\\views\\index.html'"}
+{"message":"Connected to DB....","level":"info"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"message":"Connected to DB....","level":"info"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}

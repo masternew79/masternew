@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const { cache } = require('../../middlewares/cache');
 
 const productController = require('../controllers/products');
 const checkAuth = require('../../middlewares/check-auth');
@@ -11,11 +11,11 @@ const fields = [
     {name: 'subImage', maxCount: 10}
 ];
 
-router.get('/', productController.index);
+router.get('/', cache, productController.index);
 
 router.post('/',  checkAuth.admin, upload.fields(fields), productController.store);
 
-router.get('/:id', productController.show);
+router.get('/:id', cache, productController.show);
 
 router.put('/:id',  checkAuth.admin, upload.fields(fields), productController.update);
 

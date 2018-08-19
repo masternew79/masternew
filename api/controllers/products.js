@@ -2,7 +2,8 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const { Product, validate } = require('../models/product');
 const { Category } = require('../models/category');
-const serviceAccount = require('./../../mn-shop-firebase.json')
+const serviceAccount = require('./../../mn-shop-firebase.json');
+const { flatCache } = require('../../middlewares/cache');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -119,7 +120,6 @@ module.exports = {
             async (path) => await uploadFirebase(path)
         ));
 
-        
         let product = new Product(req.body);
         product.category = {
             _id: category._id,
@@ -128,12 +128,15 @@ module.exports = {
         product.image = imageUrl;
         product.subImage = subImageUrl;
         await product.save();
+
+        // Clear cache
+        flatCache.clearCacheById('MNShopCache');
         
         res.status(201).send(product);
     },
     // GET
     show: async (req, res) => {
-        const product = await Product.findById(req.params.id).select('-__v');
+        const product = await Product.findOne({_id: req.params.id}).select('-__v');
         if(!product) return res.status(400).send("Invalid product ID");
         // View +1
         product.view++;
@@ -179,10 +182,11 @@ module.exports = {
                 name: category.name,
             }
         }
-        console.log(product);
             
         product = await Product.findByIdAndUpdate(req.params.id, product, { new: true });
         if (!product) return res.status(500).send("No valid entry found for provide ID");
+        // Clear cache
+        flatCache.clearCacheById('MNShopCache');
 
         res.status(200).json({ data: product});
     },
