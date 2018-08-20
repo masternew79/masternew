@@ -169,7 +169,7 @@ module.exports = reloadCSS;
 var reloadCSS = require('_css_loader');
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./assets\\section1.jpg":[["section1.37ba0ef8.jpg","assets\\section1.jpg"],"assets\\section1.jpg"],"./assets\\footer.jpg":[["footer.1394a50c.jpg","assets\\footer.jpg"],"assets\\footer.jpg"],"_css_loader":"C:\\Users\\Administrator\\AppData\\Roaming\\npm\\node_modules\\parcel-bundler\\src\\builtins\\css-loader.js"}],"node_modules\\animate.css\\animate.css":[function(require,module,exports) {
+},{"./assets\\section1.jpg":[["section1.c01da537.jpg","assets\\section1.jpg"],"assets\\section1.jpg"],"./assets\\footer.jpg":[["footer.0bc22f7f.jpg","assets\\footer.jpg"],"assets\\footer.jpg"],"_css_loader":"C:\\Users\\Administrator\\AppData\\Roaming\\npm\\node_modules\\parcel-bundler\\src\\builtins\\css-loader.js"}],"node_modules\\animate.css\\animate.css":[function(require,module,exports) {
 
         var reloadCSS = require('_css_loader');
         module.hot.dispose(reloadCSS);
@@ -17249,7 +17249,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '52747' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '51726' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -17391,4 +17391,4 @@ function hmrAccept(bundle, id) {
   });
 }
 },{}]},{},["C:\\Users\\Administrator\\AppData\\Roaming\\npm\\node_modules\\parcel-bundler\\src\\builtins\\hmr-runtime.js","script.js"], null)
-//# sourceMappingURL=/script.15ea2a5d.map
+//# sourceMappingURL=/script.a3f5d3dd.map
