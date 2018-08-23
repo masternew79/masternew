@@ -13,26 +13,8 @@ module.exports = function(app) {
     app.get('/', (req, res) => {
         res.sendFile(path.resolve(`./views/index.html`));
     });
-    app.get('/trangchu', (req, res) => {
-        res.sendFile(path.resolve(`./views/trangchu.html`));
-    });
-    app.get('/chodatmaychu', (req, res) => {
-        res.sendFile(path.resolve(`./views/chodatmaychu.html`));
-    });
-    app.get('/congnghe', (req, res) => {
-        res.sendFile(path.resolve(`./views/congnghe.html`));
-    });
-    app.get('/giaiphap', (req, res) => {
-        res.sendFile(path.resolve(`./views/giaiphap.html`));
-    });
-    app.get('/lienhe', (req, res) => {
-        res.sendFile(path.resolve(`./views/lienhe.html`));
-    });
-    app.get('/luutrudammay', (req, res) => {
-        res.sendFile(path.resolve(`./views/luutrudammay.html`));
-    });
-    app.get('/maychuluutru', (req, res) => {
-        res.sendFile(path.resolve(`./views/maychuluutru.html`));
+    app.get('/mn-shop-vue', (req, res) => {
+        res.sendFile(path.resolve(`./views/mn-shop-vue/index.html`));
     });
     
     //routes handle request
