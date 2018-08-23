@@ -81,3 +81,18 @@
 {"status":404,"level":"error","message":"Page Not found"}
 {"status":404,"level":"error","message":"Page Not found"}
 {"status":404,"level":"error","message":"Page Not found"}
+{"message":"Connected to DB....","level":"info"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"status":404,"level":"error","message":"Page Not found"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\masternew\\startup\\views\\mn-shop-vue\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\masternew\\startup\\views\\mn-shop-vue\\index.html'"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\masternew\\startup\\views\\mn-shop-vue\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\masternew\\startup\\views\\mn-shop-vue\\index.html'"}
+{"message":"Connected to DB....","level":"info"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\masternew\\startup\\views\\mn-shop-vue\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\masternew\\startup\\views\\mn-shop-vue\\index.html'"}
+{"message":"Connected to DB....","level":"info"}
+{"errno":-4058,"code":"ENOENT","syscall":"stat","path":"D:\\Project\\masternew\\startup\\views\\mn-shop-vue\\index.html","expose":false,"statusCode":404,"status":404,"level":"error","message":"ENOENT: no such file or directory, stat 'D:\\Project\\masternew\\startup\\views\\mn-shop-vue\\index.html'"}
+{"message":"Connected to DB....","level":"info"}
+{"message":"Connected to DB....","level":"info"}
+{"status":404,"level":"error","message":"Page Not found"}
